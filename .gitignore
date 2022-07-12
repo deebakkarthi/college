@@ -1,2 +1,3 @@
 *.IGNORE
 __pycache__
+test.py
