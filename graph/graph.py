@@ -1,6 +1,12 @@
 from collections import deque, namedtuple
 
 
+# Since sorted(pq, key:lamda x: x[2]) or
+# find_cluster(x[1]) != find_cluster(x[2])
+# are not very readable
+edge = namedtuple("edge", ["src", "dest", "weight"])
+
+
 # Adjacent map implementation of an directed, unweighted graph
 # Any undirected graph can be converted to a directed one
 # Handle that in the implementation with two add_edge() calls
@@ -22,6 +28,13 @@ class du_graph:
     def neighbours(self, u):
         return self.map[u]
 
+    def get_edges(self):
+        edge_list = list()
+        for i in self:
+            for j in self.map[i]:
+                edge_list.append(edge(i, j))
+        return edge_list
+
     # Generator for the vertices
     def __iter__(self):
         for i in self.map:
@@ -39,6 +52,9 @@ class dw_graph:
         # Like set this also prevents duplicate edges
         self.map[u] = dict()
 
+    def order(self):
+        return len(self.map)
+
     # add an edge from u to v with weight w
     def add_edge(self, u, v, w):
         self.map[u][v] = w
@@ -54,6 +70,13 @@ class dw_graph:
             if u in e:
                 tmp.append(v)
         return tmp
+
+    def get_edges(self):
+        edge_list = list()
+        for i in self:
+            for j in self.map[i]:
+                edge_list.append(edge(i, j, self.map[i][j]))
+        return edge_list
 
     # Generator for the vertices
     def __iter__(self):
@@ -111,3 +134,67 @@ def topo(g):
             if indegree[i] == 0:
                 ready.append(i)
     return order
+
+
+# given a list of sets, returns the set with the element u
+def get_cluster(cluster, u):
+    for i in cluster:
+        if u in i:
+            return i
+    return None
+
+
+# merges two clusters and removes the og two
+def merge_cluster(cluster, u, v):
+    tmp = u.union(v)
+    cluster.remove(u)
+    cluster.remove(v)
+    cluster.append(tmp)
+
+
+# generates MST of an undirected, weighted graph
+def kruskal(g):
+    # list of edges in the mst
+    mst = list()
+    req_size = g.order()-1
+
+    # Priority Queue with weight as the key
+    pq = g.get_edges()
+    pq = sorted(pq, key=lambda x: x.weight)
+
+    # Cluster generation
+    cluster = list()
+    for i in g:
+        cluster.append({i})
+
+    # Traversing the whole edge list instead of checking the usual condition
+    # len(mst) <= g.order()-1 as either we have use a deque to popleft() or
+    # keep an external index var. Instead checking after each insertiont to mst
+    for i in pq:
+        u = get_cluster(cluster, i.src)
+        v = get_cluster(cluster, i.dest)
+        # If they belong to different clusters
+        if u != v:
+            mst.append(i)
+            merge_cluster(cluster, u, v)
+            if len(mst) == req_size:
+                break
+
+    return mst
+
+
+# return all the vertices of a undirected set of edges
+def span(edge_list):
+    vertices = set()
+    for i in edge_list:
+        vertices.add(i.src)
+        vertices.add(i.dest)
+    return vertices
+
+
+# Calc cost of a set of edges
+def cost(edge_list):
+    ret = 0
+    for i in edge_list:
+        ret += i.weight
+    return ret
