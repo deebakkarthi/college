@@ -1,4 +1,5 @@
 from collections import deque, namedtuple
+import heapq
 
 
 # Since sorted(pq, key:lamda x: x[2]) or
@@ -7,12 +8,23 @@ from collections import deque, namedtuple
 edge = namedtuple("edge", ["src", "dest", "weight"])
 
 
+# storing infinity in a constant as writing is float('inf') is tedious
+INF = float('inf')
+
+
 # Adjacent map implementation of an directed, unweighted graph
 # Any undirected graph can be converted to a directed one
 # Handle that in the implementation with two add_edge() calls
 class du_graph:
     def __init__(self):
         self.map = dict()
+
+    def order(self):
+        return len(self.map)
+
+    # pseudo root. Starting point for prim's
+    def root(self):
+        return next(iter(self.map))
 
     def add_vertex(self, u):
         # Using set() opposed to list() because set provides almost O(1)
@@ -27,6 +39,14 @@ class du_graph:
 
     def neighbours(self, u):
         return self.map[u]
+
+    # List of vertices who have a edge directed to u
+    def indegree(self, u):
+        tmp = list()
+        for v, e in self.map.items():
+            if u in e:
+                tmp.append(v)
+        return tmp
 
     def get_edges(self):
         edge_list = list()
@@ -52,6 +72,10 @@ class dw_graph:
         # Like set this also prevents duplicate edges
         self.map[u] = dict()
 
+    # pseudo root. Starting point for prim's
+    def root(self):
+        return next(iter(self.map))
+
     def order(self):
         return len(self.map)
 
@@ -62,6 +86,9 @@ class dw_graph:
     # List of vertices who have a edge directed from u
     def neighbours(self, u):
         return self.map[u].keys()
+
+    def weight(self, u, v):
+        return self.map[u][v]
 
     # List of vertices who have a edge directed to u
     def indegree(self, u):
@@ -198,3 +225,51 @@ def cost(edge_list):
     for i in edge_list:
         ret += i.weight
     return ret
+
+
+def update_pq(pq, u, weight, edge):
+    for i in pq:
+        if i[1][0] == u:
+            i[0] = weight
+            i[1][1] = edge
+            return
+
+
+# Prim's algorithm for MST of undirected, weighted graph
+def prim(g):
+    mst = set()
+    # Contains the shortest distance to a vertex from the formed MST
+    # as MST is empty at first these are INF
+    d = dict()
+    pq = list()
+    for i in g:
+        d[i] = INF
+    # We are picking one element to be in the MST first. By setting the weight
+    # to 0 we can pop it first. This simulates starting from this point and
+    # picking the smallest from there
+    d[g.root()] = 0
+    for i in d:
+        # PQ is a triplet of the form
+        # Shortest distance from MST to vertex,
+        # vertex
+        # The edge with the shortest distance
+        # Initially edge is None as we don't have any connection with MST
+        pq.append([d[i], [i, None]])
+    pq = sorted(pq, key=lambda x: x[0])
+    while pq:
+        # Removing the vertex closest to the MST
+        key, value = pq.pop(0)
+        u, e = value
+        # If there is actually and edge from MST to u, then connect it
+        if e is not None:
+            mst.add(e)
+        # Since u is in the MST now, we have to update all weights.
+        # d contains the shortest distance to the MST.
+        # since we added a new vertex we have to check if this changes anything
+        for v in g.neighbours(u):
+            wgt = g.weight(u, v)
+            if wgt < d[v]:
+                d[v] = wgt
+                update_pq(pq, v, wgt, edge(u, v, wgt))
+        pq = sorted(pq, key=lambda x: x[0])
+    return mst
