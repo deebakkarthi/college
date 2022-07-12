@@ -42,11 +42,11 @@ class dw_graph:
     # add an edge from u to v with weight w
     def add_edge(self, u, v, w):
         self.map[u][v] = w
-    
+
     # List of vertices who have a edge directed from u
     def neighbours(self, u):
         return self.map[u].keys()
-    
+
     # List of vertices who have a edge directed to u
     def indegree(self, u):
         tmp = list()
@@ -86,12 +86,12 @@ def bfs(g, u):
                 queue.append(i)
     return vis
 
+
 # Topological sort (Works only on directed acyclic graphs)
-# u->v is an edge then u should appear before(may or maybe be consecutive)
+# u->v is an edge then u should appear before(may or maynot be consecutive)
 # v in the order, the first elements to appear are elements with 0
 # indegree edges.
 def topo(g):
-    # Incount of 
     indegree = dict()
     # Queue of vertices with indegree of 0
     ready = deque()
