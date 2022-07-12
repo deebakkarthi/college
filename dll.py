@@ -13,6 +13,7 @@ class list_node:
     def __str__(self):
         return str(self.val)
 
+
 class dll:
     def __init__(self):
         self.head = None
@@ -29,7 +30,7 @@ class dll:
         self.head = new
         self.size += 1
 
-    def insert_tail(self,new):
+    def insert_tail(self, new):
         if self:
             new.prev = self.tail
             self.tail.next = new
@@ -43,15 +44,14 @@ class dll:
         if node is self.head:
             self.insert_head(new)
         else:
-            self.insert_between(node.prev,new,node)
+            self.insert_between(node.prev, new, node)
             self.size += 1
-
 
     def insert_after(self, node, new):
         if node is self.tail:
             self.insert_tail(new)
         else:
-            self.insert_between(node,new,node.next)
+            self.insert_between(node, new, node.next)
             self.size += 1
 
     def insert_between(self, prev, new, next):
@@ -74,7 +74,7 @@ class dll:
                 self.head.prev = None
         self.size -= 1
         return tmp
-    
+
     def remove_tail(self):
         tmp = self.tail
         # Not an empty list
@@ -85,7 +85,7 @@ class dll:
                 self.tail.next = None
         self.size -= 1
         return tmp
-    
+
     def remove_after(self, node):
         ret = node.next
         # If there is a node
@@ -95,10 +95,10 @@ class dll:
             if ret is self.tail:
                 return self.remove_tail()
             else:
-                self.connect(node,ret.next)
+                self.connect(node, ret.next)
         self.size -= 1
         return ret
-    
+
     def remove_before(self, node):
         ret = node.prev
         if ret:
@@ -106,7 +106,7 @@ class dll:
             if ret is self.head:
                 return self.remove_head()
             else:
-                self.connect(ret.prev,node)
+                self.connect(ret.prev, node)
         self.size -= 1
         return ret
 

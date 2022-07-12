@@ -13,6 +13,7 @@ class list_node:
     def __str__(self):
         return str(self.val)
 
+
 class sll:
     def __init__(self):
         self.head = None

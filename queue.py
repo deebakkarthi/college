@@ -1,27 +1,27 @@
-from sll import sll, list_node
+from dll import dll, list_node
 
 
-class stack:
+class queue:
     def __init__(self):
-        self.list = sll()
+        self.list = dll()
 
-    def push(self, x):
-        self.list.insert_head(list_node(x))
+    def enqueue(self, x):
+        self.list.insert_tail(list_node(x))
 
-    def pop(self):
+    def dequeue(self):
         if self:
             return self.list.remove_head().val
         else:
             return None
 
-    def top(self):
+    def front(self):
         if self:
             return self.list.head.val
         else:
             return None
 
-    def __len__(self):
-        return len(self.list)
-
     def __bool__(self):
         return bool(self.list)
+
+    def __len__(self):
+        return len(self.list)
